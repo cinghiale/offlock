@@ -1,0 +1,227 @@
+#include "testApp.h"
+
+//--------------------------------------------------------------
+ofVec3f random_position() {
+    return {
+        ofRandom(-40, 40),
+        ofRandom(-40, 40),
+        ofRandom(-40, 40)
+    };
+}
+ofVec3f random_velocity() {
+    return {
+        ofRandom(-5, 5),
+        ofRandom(-5, 5),
+        ofRandom(-5, 5)
+    };
+}
+void testApp::setup(){
+    shader.load("f1");
+    flock.bound_cube_size = 400;
+
+    {
+        float s = flock.bound_cube_size;
+        ofVec3f const verts[] = {
+            {+s, -s, +s},
+            {+s, -s, -s},
+            {-s, -s, -s},
+            {-s, -s, +s},
+            {+s, +s, +s},
+            {+s, +s, -s},
+            {-s, +s, -s},
+            {-s, +s, +s}
+        };
+        ofIndexType const faces[] = {
+            0, 1, 2,
+            2, 3, 0,
+
+            0, 1, 5,
+            5, 4, 0,
+            1, 2, 6,
+            6, 5, 1,
+            2, 3, 7,
+            7, 6, 2,
+            3, 0, 4,
+            4, 7, 3,
+
+            4, 5, 6,
+            6, 7, 4
+        };
+        ofFloatColor const colors[] = {
+            {0, 255, 0},
+            {0, 255, 0},
+            {0, 255, 0},
+            {0, 255, 0},
+            {0, 255, 0},
+            {0, 255, 0},
+            {0, 255, 0},
+            {0, 255, 0}
+        };
+
+        cube.setVertexData(verts, 8, GL_STATIC_DRAW);
+        cube.setColorData(colors, 8, GL_STATIC_DRAW);
+        cube.setIndexData(faces, 24, GL_STATIC_DRAW);
+    }
+
+    boids.positions[0] = random_position();
+    boids.velocities[0] = random_velocity();
+    boids.positions[1] = random_position();
+    boids.velocities[1] = random_velocity();
+    boids.size = 2;
+
+    {
+        ofVec3f const verts[] = {
+            {-2, 0, 0},
+            {2, 0, -1},
+            {2, 0, 1},
+            {2, 2, 0}
+        };
+        ofIndexType const faces[] = {
+            0, 1, 2,
+            0, 1, 3,
+            0, 3, 2,
+            1, 2, 3
+        };
+        ofFloatColor const colors[] = {
+            {255, 0, 0},
+            {0, 255, 0},
+            {0, 0, 255},
+            {0, 255, 255}
+        };
+        vbo.setVertexData(verts, 4, GL_STATIC_DRAW);
+        vbo.setColorData(colors, 4, GL_STATIC_DRAW);
+
+        auto attribute = shader.getAttributeLocation("boid_position");
+        this->vbo.setAttributeData(
+            attribute,
+            (float*)(this->boids.positions.data()),
+            3,
+            this->boids.max_size * 3,
+            GL_STREAM_DRAW);
+
+        vbo.bind();
+        glVertexAttribDivisor(attribute, 1);
+        vbo.unbind();
+
+        vbo.setIndexData(faces, 12, GL_STATIC_DRAW);
+    }
+
+
+
+    /*
+
+    cl::Context ctx;
+    cl::Program program;
+    std::tie(ctx, program) = ocl::shared_cl_context({"./data/kernel1.cl"}, &cout);
+
+    this->queue = ocl::create_queues(ctx)[0];
+    this->shared_buffer = cl::BufferGL(ctx, CL_MEM_READ_WRITE, vbo.getVertId());
+    this->shared_buffers.push_back(this->shared_buffer);
+
+    vector<cl::Kernel> kernels;
+    program.createKernels(&kernels);
+    this->kernel = kernels[0];
+    cout << "Kernel: " << this->kernel.getInfo<CL_KERNEL_FUNCTION_NAME>() << endl;
+    this->kernel.setArg(0, this->shared_buffer);
+    this->kernel.setArg(1, 9);
+    */
+}
+
+//--------------------------------------------------------------
+void testApp::update() {
+    if(ofRandomuf() < 0.3 && this->boids.size < this->boids.max_size) {
+        this->boids.positions[this->boids.size] = random_position();
+        this->boids.velocities[this->boids.size] = random_velocity();
+        this->boids.size++;
+    }
+    if (ofGetFrameNum() % 10 != 0) {
+        //return;
+    }
+    flock.update(this->boids.positions, this->boids.velocities);
+    auto attribute = shader.getAttributeLocation("boid_position");
+    this->vbo.updateAttributeData(
+        attribute,
+        (float*)(this->boids.positions.data()),
+        this->boids.size * 3);
+}
+
+//--------------------------------------------------------------
+void testApp::draw(){
+    ofClear(0, 0, 0);
+    shader.begin();
+    easyCam.begin();
+        ofPushMatrix();
+            cube.drawElements(GL_LINE_STRIP, 24);
+            vbo.drawElementsInstanced(GL_TRIANGLES, 12, this->boids.size);
+        ofPopMatrix();
+    easyCam.end();
+    shader.end();
+    /*
+    ofCircle(300, 300, 30);
+    try {
+        this->queue.enqueueAcquireGLObjects(&this->shared_buffers);
+        this->queue.enqueueNDRangeKernel(
+            this->kernel,
+            cl::NDRange(),
+            cl::NDRange(1234944),
+            cl::NDRange()
+        );
+        this->queue.enqueueReleaseGLObjects(&this->shared_buffers);
+        this->queue.finish();
+    }
+    catch(cl::Error& e) {
+        cout << e.err() << endl;
+        throw;
+    }
+    //ofRotateZ(ofGetElapsedTimef());
+    vbo.bind();
+    vbo.draw(GL_TRIANGLES, 0, 3);
+    shader.end();
+    */
+    ofDrawBitmapString(ofToString(ofGetFrameRate())+"fps", 10, 15);
+}
+
+//--------------------------------------------------------------
+void testApp::keyPressed(int key){
+
+}
+
+//--------------------------------------------------------------
+void testApp::keyReleased(int key){
+
+}
+
+//--------------------------------------------------------------
+void testApp::mouseMoved(int x, int y){
+
+}
+
+//--------------------------------------------------------------
+void testApp::mouseDragged(int x, int y, int button){
+
+}
+
+//--------------------------------------------------------------
+void testApp::mousePressed(int x, int y, int button){
+
+}
+
+//--------------------------------------------------------------
+void testApp::mouseReleased(int x, int y, int button){
+
+}
+
+//--------------------------------------------------------------
+void testApp::windowResized(int w, int h){
+
+}
+
+//--------------------------------------------------------------
+void testApp::gotMessage(ofMessage msg){
+
+}
+
+//--------------------------------------------------------------
+void testApp::dragEvent(ofDragInfo dragInfo){ 
+
+}
