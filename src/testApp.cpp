@@ -176,12 +176,50 @@ void testApp::draw(){
     vbo.draw(GL_TRIANGLES, 0, 3);
     shader.end();
     */
-    ofDrawBitmapString(ofToString(ofGetFrameRate())+"fps", 10, 15);
+    string message = ofToString(ofGetFrameRate(), 2)+"fps;";
+    message += " flock size: " + ofToString(flocks[0].size());
+    message += " (m)ass centre=" + ofToString(cpu_flock.coefficient_toward_centre_mass, 3);
+    message += " (k)eep distance=" + ofToString(cpu_flock.coefficient_keep_distance, 3);
+    message += " match (v)elocity=" + ofToString(cpu_flock.coefficient_match_velocity, 3);
+    ofDrawBitmapString(message, 10, 15);
 }
 
 //--------------------------------------------------------------
 void testApp::keyPressed(int key){
+    if (!(key == 'm' || key == 'k' || key == 'v')) {
+        return;
+    }
+    float values[4];
+    float *target;
 
+    if (key == 'm') {
+        values[0] = 0.01;
+        values[1] = 0.1;
+        values[2] = 0;
+        values[3] = -0.1;
+        target = &cpu_flock.coefficient_toward_centre_mass;
+    }
+    else if (key == 'k') {
+        values[0] = 0.4;
+        values[1] = 0.8;
+        values[2] = 1.4;
+        values[3] = 0;
+        target = &cpu_flock.coefficient_keep_distance;
+    }
+    else if (key == 'v') {
+        values[0] = 0.125;
+        values[1] = 0.250;
+        values[2] = 0.500;
+        values[3] = 0;
+        target = &cpu_flock.coefficient_match_velocity;
+    }
+    auto count = sizeof(values)/sizeof(float);
+    for (unsigned int ix=0; ix<count; ix++) {
+        if (values[ix] == *target) {
+            *target = values[(ix+1) % count];
+            break;
+        }
+    }
 }
 
 //--------------------------------------------------------------
