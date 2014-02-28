@@ -150,6 +150,9 @@ void testApp::draw(){
     easyCam.begin();
         ofPushMatrix();
             cube.drawElements(GL_LINE_STRIP, 24);
+            for(int ix=0; ix<flocks[current_flock].size(); ix++) {
+                cout << "d" << ix << ": " << flocks[current_flock].positions[ix] << endl;
+            }
             vbo.drawElementsInstanced(GL_TRIANGLES, 12, flocks[current_flock].size());
         ofPopMatrix();
     easyCam.end();
@@ -186,7 +189,12 @@ void testApp::draw(){
 
 //--------------------------------------------------------------
 void testApp::keyPressed(int key){
-    if (!(key == 'm' || key == 'k' || key == 'v')) {
+    if (!(key == 'm' || key == 'k' || key == 'v' || key == 'p')) {
+        return;
+    }
+    if (key == 'p') {
+        cpu_flock.goal = ofVec3f(500, 0, 0);
+        cpu_flock.coefficient_toward_goal = 0.01;
         return;
     }
     float values[4];

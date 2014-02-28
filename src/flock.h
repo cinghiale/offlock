@@ -51,6 +51,8 @@ class CPU {
         float max_velocity = 10;
         float bounding_cube_length = 0;
         float coefficient_bounding_cube = 10;
+        ofVec3f goal;
+        float coefficient_toward_goal = 0;
 
         template<size_t N>
         void update(Flock<N> const& src, Flock<N>& dst) {
@@ -82,6 +84,7 @@ class CPU {
                 velocity += (centre_mass - boid) * this->coefficient_toward_centre_mass;
                 velocity += keep_distance * this->coefficient_keep_distance;
                 velocity += (match_velocity - src.velocities[px]) * this->coefficient_match_velocity;
+                velocity += (goal - boid) * this->coefficient_toward_goal;
 
                 if (this->bounding_cube_length) {
                     velocity += this->bound_cube(boid) * this->coefficient_bounding_cube;
@@ -92,6 +95,7 @@ class CPU {
                     dst.velocities[px] = dst.velocities[px].normalize() * this->max_velocity;
                 }
                 dst.positions[px] = boid + dst.velocities[px];
+                cout << px << " " << boid << " " << goal << " -> " << (goal - boid) * this->coefficient_toward_goal << " # " << dst.positions[px] << endl;
             }
             dst.resize(src.size());
         }
