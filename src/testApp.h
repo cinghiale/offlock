@@ -2,7 +2,6 @@
 
 #define __CL_REFERENCE
 #include "ofMain.h"
-#include "ocl.h"
 #include "flock.h"
 #include <array>
 
@@ -34,8 +33,10 @@ class testApp : public ofBaseApp{
 
 		ofEasyCam easyCam;
 
+        /*
         cl::CommandQueue queue;
         cl::BufferGL shared_buffer;
         cl::Kernel kernel;
         vector<cl::Memory> shared_buffers;
+        */
 };
