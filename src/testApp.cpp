@@ -96,7 +96,7 @@ void testApp::setup(){
             attribute,
             (float*)(flocks[current_flock].positions.data()),
             3,
-            flocks[current_flock].max_size * 3,
+            flocks[current_flock].max_size,
             GL_STREAM_DRAW);
 
         vbo.bind();
@@ -129,7 +129,7 @@ void testApp::setup(){
 
 //--------------------------------------------------------------
 void testApp::update() {
-    if(ofRandomuf() < 0.3 && !flocks[current_flock].full()) {
+    if(ofRandomuf() < 0.9 && !flocks[current_flock].full()) {
         flocks[current_flock].add(random_position(), random_velocity());
     }
     if (ofGetFrameNum() % 10 != 0) {
@@ -140,7 +140,7 @@ void testApp::update() {
     this->vbo.updateAttributeData(
         shader.getAttributeLocation("boid_position"),
         (float*)(flocks[current_flock].positions.data()),
-        flocks[current_flock].size() * 3);
+        flocks[current_flock].size());
 }
 
 //--------------------------------------------------------------
@@ -150,9 +150,6 @@ void testApp::draw(){
     easyCam.begin();
         ofPushMatrix();
             cube.drawElements(GL_LINE_STRIP, 24);
-            for(int ix=0; ix<flocks[current_flock].size(); ix++) {
-                cout << "d" << ix << ": " << flocks[current_flock].positions[ix] << endl;
-            }
             vbo.drawElementsInstanced(GL_TRIANGLES, 12, flocks[current_flock].size());
         ofPopMatrix();
     easyCam.end();

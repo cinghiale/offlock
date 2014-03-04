@@ -95,7 +95,6 @@ class CPU {
                     dst.velocities[px] = dst.velocities[px].normalize() * this->max_velocity;
                 }
                 dst.positions[px] = boid + dst.velocities[px];
-                cout << px << " " << boid << " " << goal << " -> " << (goal - boid) * this->coefficient_toward_goal << " # " << dst.positions[px] << endl;
             }
             dst.resize(src.size());
         }
