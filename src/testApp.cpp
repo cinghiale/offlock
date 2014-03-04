@@ -147,6 +147,7 @@ void testApp::update() {
 void testApp::draw(){
     ofClear(0, 0, 0);
     shader.begin();
+    shader.setUniform1i("cube_size", cpu_flock.bounding_cube_length);
     easyCam.begin();
         ofPushMatrix();
             cube.drawElements(GL_LINE_STRIP, 24);
