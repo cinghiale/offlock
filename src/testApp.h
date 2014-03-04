@@ -21,7 +21,7 @@ class testApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 
-        flock::Flock<3> flocks[2];
+        flock::Flock* flocks[2];
         int current_flock;
         int next_flock;
         flock::algorithm::CPU cpu_flock;

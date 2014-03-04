@@ -15,7 +15,10 @@ ofVec3f random_velocity() {
         ofRandom(-5, 5)
     };
 }
+extern int boids_number;
 void testApp::setup(){
+    flocks[0] = new flock::Flock(boids_number);
+    flocks[1] = new flock::Flock(boids_number);
     shader.load("f1");
     cpu_flock.bounding_cube_length = 500;
 
@@ -66,8 +69,8 @@ void testApp::setup(){
     current_flock = 0;
     next_flock = 1;
 
-    flocks[current_flock].add(random_position(), random_velocity());
-    flocks[current_flock].add(random_position(), random_velocity());
+    flocks[current_flock]->add(random_position(), random_velocity());
+    flocks[current_flock]->add(random_position(), random_velocity());
 
     {
         ofVec3f const verts[] = {
@@ -94,9 +97,9 @@ void testApp::setup(){
         auto attribute = shader.getAttributeLocation("boid_position");
         this->vbo.setAttributeData(
             attribute,
-            (float*)(flocks[current_flock].positions.data()),
+            (float*)(flocks[current_flock]->positions.data()),
             3,
-            flocks[current_flock].max_size,
+            flocks[current_flock]->max_size,
             GL_STREAM_DRAW);
 
         vbo.bind();
@@ -129,18 +132,18 @@ void testApp::setup(){
 
 //--------------------------------------------------------------
 void testApp::update() {
-    if(ofRandomuf() < 0.9 && !flocks[current_flock].full()) {
-        flocks[current_flock].add(random_position(), random_velocity());
+    if(ofRandomuf() < 0.9 && !flocks[current_flock]->full()) {
+        flocks[current_flock]->add(random_position(), random_velocity());
     }
     if (ofGetFrameNum() % 10 != 0) {
         //return;
     }
-    cpu_flock.update(flocks[current_flock], flocks[next_flock]);
+    cpu_flock.update(*flocks[current_flock], *flocks[next_flock]);
     std::swap(current_flock, next_flock);
     this->vbo.updateAttributeData(
         shader.getAttributeLocation("boid_position"),
-        (float*)(flocks[current_flock].positions.data()),
-        flocks[current_flock].size());
+        (float*)(flocks[current_flock]->positions.data()),
+        flocks[current_flock]->size());
 }
 
 //--------------------------------------------------------------
@@ -151,7 +154,7 @@ void testApp::draw(){
     easyCam.begin();
         ofPushMatrix();
             cube.drawElements(GL_LINE_STRIP, 24);
-            vbo.drawElementsInstanced(GL_TRIANGLES, 12, flocks[current_flock].size());
+            vbo.drawElementsInstanced(GL_TRIANGLES, 12, flocks[current_flock]->size());
         ofPopMatrix();
     easyCam.end();
     shader.end();
@@ -178,7 +181,7 @@ void testApp::draw(){
     shader.end();
     */
     string message = ofToString(ofGetFrameRate(), 2)+"fps;";
-    message += " flock size: " + ofToString(flocks[0].size());
+    message += " flock size: " + ofToString(flocks[0]->size());
     message += " (m)ass centre=" + ofToString(cpu_flock.coefficient_toward_centre_mass, 3);
     message += " (k)eep distance=" + ofToString(cpu_flock.coefficient_keep_distance, 3);
     message += " match (v)elocity=" + ofToString(cpu_flock.coefficient_match_velocity, 3);
