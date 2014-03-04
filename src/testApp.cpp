@@ -149,15 +149,16 @@ void testApp::update() {
 //--------------------------------------------------------------
 void testApp::draw(){
     ofClear(0, 0, 0);
-    shader.begin();
-    shader.setUniform1i("cube_size", cpu_flock.bounding_cube_length);
     easyCam.begin();
         ofPushMatrix();
+            //ofDrawAxis(500);
             cube.drawElements(GL_LINE_STRIP, 24);
-            vbo.drawElementsInstanced(GL_TRIANGLES, 12, flocks[current_flock]->size());
+            shader.begin();
+            shader.setUniform1i("cube_size", cpu_flock.bounding_cube_length);
+                vbo.drawElementsInstanced(GL_TRIANGLES, 12, flocks[current_flock]->size());
+            shader.end();
         ofPopMatrix();
     easyCam.end();
-    shader.end();
     /*
     ofCircle(300, 300, 30);
     try {
