@@ -190,7 +190,12 @@ void testApp::draw(){
 
 //--------------------------------------------------------------
 void testApp::keyPressed(int key){
-    if (!(key == 'm' || key == 'k' || key == 'v' || key == 'p')) {
+    if (!(key == 'm' || key == 'k' || key == 'v' || key == 'p' || key == 'q')) {
+        return;
+    }
+    if (key == 'q') {
+        cout << "bye bye" << endl;
+        ofExit();
         return;
     }
     if (key == 'p') {
