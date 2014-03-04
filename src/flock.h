@@ -1,21 +1,22 @@
 #pragma once
-#include <array>
+#include <vector>
 #include <stdexcept>
 #include "ofVectorMath.h"
 
 namespace flock {
 
-using std::array;
+using std::vector;
 
-template<size_t N>
 class Flock {
     private:
         int _size{0};
     public:
-        static int const max_size = N;
+        int const max_size;
 
-        array<ofVec3f, N> positions;
-        array<ofVec3f, N> velocities;
+        vector<ofVec3f> positions;
+        vector<ofVec3f> velocities;
+
+        Flock(int max_size) : max_size(max_size), positions(max_size), velocities(max_size) {}
 
         bool full() {
             return this->_size >= this->max_size;
@@ -54,8 +55,7 @@ class CPU {
         ofVec3f goal;
         float coefficient_toward_goal = 0;
 
-        template<size_t N>
-        void update(Flock<N> const& src, Flock<N>& dst) {
+        void update(Flock const& src, Flock& dst) {
             for (int px=0; px<src.size(); px++) {
                 auto& boid = src.positions[px];
 
