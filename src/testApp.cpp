@@ -193,15 +193,15 @@ void testApp::draw(){
     message += " match (v)elocity=" + ofToString(cpu_flock.coefficient_match_velocity, 3);
     ofDrawBitmapString(message, 10, 15);
 
-    if (cpu_flock.coefficient_toward_goal) {
-        message = "goal " + ofToString(cpu_flock.goal);
-        ofDrawBitmapString(message, 10, 30);
-    }
+    message = "";
+    message += cpu_flock.coefficient_toward_goal ? "(g)oal: " + ofToString(cpu_flock.goal) : "no (g)oal";
+    message += cpu_flock.coefficient_wind ? " (w)ind: " + ofToString(cpu_flock.wind) : " no (w)ind";
+    ofDrawBitmapString(message, 10, 30);
 }
 
 //--------------------------------------------------------------
 void testApp::keyPressed(int key){
-    if (!(key == 'm' || key == 'k' || key == 'v' || key == 'p' || key == 'q')) {
+    if (!(key == 'm' || key == 'k' || key == 'v' || key == 'g' || key == 'q' || key == 'w')) {
         return;
     }
     if (key == 'q') {
@@ -209,13 +209,22 @@ void testApp::keyPressed(int key){
         ofExit();
         return;
     }
-    if (key == 'p') {
+    if (key == 'g') {
         if (cpu_flock.coefficient_toward_goal == 0) {
             cpu_flock.goal = ofVec3f(ofRandom(-400, 400), ofRandom(-400, 400), ofRandom(-400, 400));
             cpu_flock.coefficient_toward_goal = 0.001;
         }
         else {
             cpu_flock.coefficient_toward_goal = 0;
+        }
+    }
+    if (key == 'w') {
+        if (cpu_flock.coefficient_wind == 0) {
+            cpu_flock.wind = ofVec3f(-1, 0, 0);
+            cpu_flock.coefficient_wind = 0.1;
+        }
+        else {
+            cpu_flock.coefficient_wind = 0;
         }
     }
     float values[4];

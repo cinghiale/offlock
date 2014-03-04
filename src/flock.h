@@ -34,6 +34,8 @@ class CPU {
         float coefficient_bounding_cube = 10;
         ofVec3f goal;
         float coefficient_toward_goal = 0;
+        ofVec3f wind;
+        float coefficient_wind = 0;
 
         void update(Flock const& src, Flock& dst);
         ofVec3f bound_cube(ofVec3f const& boid);

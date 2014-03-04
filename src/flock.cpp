@@ -54,10 +54,11 @@ void CPU::update(Flock const& src, Flock& dst) {
         match_velocity /= src.size() - 1;
 
         ofVec3f velocity;
-        velocity += (centre_mass - boid) * this->coefficient_toward_centre_mass;
-        velocity += keep_distance * this->coefficient_keep_distance;
-        velocity += (match_velocity - src.velocities[px]) * this->coefficient_match_velocity;
-        velocity += (goal - boid) * this->coefficient_toward_goal;
+        velocity += (centre_mass - boid) * coefficient_toward_centre_mass;
+        velocity += keep_distance * coefficient_keep_distance;
+        velocity += (match_velocity - src.velocities[px]) * coefficient_match_velocity;
+        velocity += (goal - boid) * coefficient_toward_goal;
+        velocity += wind * coefficient_wind;
 
         if (this->bounding_cube_length) {
             velocity += this->bound_cube(boid) * this->coefficient_bounding_cube;
