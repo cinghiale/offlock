@@ -135,6 +135,11 @@ void testApp::update() {
     if(ofRandomuf() < 0.9 && !flocks[current_flock]->full()) {
         flocks[current_flock]->add(random_position(), random_velocity());
     }
+
+    if (ofGetFrameNum() % 120 == 0 && cpu_flock.coefficient_toward_goal) {
+        cpu_flock.goal = ofVec3f(ofRandom(-400, 400), ofRandom(-400, 400), ofRandom(-400, 400));
+        cout << "new goal: " << cpu_flock.goal << endl;
+    }
     if (ofGetFrameNum() % 10 != 0) {
         //return;
     }
@@ -187,6 +192,11 @@ void testApp::draw(){
     message += " (k)eep distance=" + ofToString(cpu_flock.coefficient_keep_distance, 3);
     message += " match (v)elocity=" + ofToString(cpu_flock.coefficient_match_velocity, 3);
     ofDrawBitmapString(message, 10, 15);
+
+    if (cpu_flock.coefficient_toward_goal) {
+        message = "goal " + ofToString(cpu_flock.goal);
+        ofDrawBitmapString(message, 10, 30);
+    }
 }
 
 //--------------------------------------------------------------
@@ -200,9 +210,13 @@ void testApp::keyPressed(int key){
         return;
     }
     if (key == 'p') {
-        cpu_flock.goal = ofVec3f(500, 0, 0);
-        cpu_flock.coefficient_toward_goal = 0.01;
-        return;
+        if (cpu_flock.coefficient_toward_goal == 0) {
+            cpu_flock.goal = ofVec3f(ofRandom(-400, 400), ofRandom(-400, 400), ofRandom(-400, 400));
+            cpu_flock.coefficient_toward_goal = 0.001;
+        }
+        else {
+            cpu_flock.coefficient_toward_goal = 0;
+        }
     }
     float values[4];
     float *target;
